@@ -19,7 +19,7 @@ settings screen. Without a pack you get the vanilla look.
 
 ## Download
 
-[`gbufferd-webgpu.html`](gbufferd-webgpu.html) is the finished page: one file, nothing to install. Open it in a
+[`dist/gbufferd-webgpu.html`](dist/gbufferd-webgpu.html) is the finished page: one file, nothing to install. Open it in a
 browser with WebGPU (Chrome, Edge) and drop a shader pack zip onto it.
 
 ## Put it on your own page
@@ -43,8 +43,9 @@ and [examples/embed.html](examples/embed.html) is a complete page to start from.
 node build.mjs
 ```
 
-The result is one self-contained file, `dist/gbufferd-webgpu.html`, with `gbufferd-embed.js` next to it. `node build.mjs gbufferd-webgpu.html --without-pack`
-makes the file in the repository root (always without the built-in pack). It needs Node 18 or newer and nothing else.
+The result is one self-contained file, `dist/gbufferd-webgpu.html`, with `gbufferd-embed.js` next to it. `dist/` is
+what's in the repository, always without the built-in pack. `node build.mjs --with-pack` builds into `build/` instead
+(not in git) and includes `assets/packs/builtin-pack.zip` if you have one. It needs Node 18 or newer and nothing else.
 Open the file in a browser with WebGPU (Chrome, Edge).
 
 ## Layout
@@ -75,7 +76,7 @@ In JavaScript, where a placeholder alone would not be valid code, `__include('te
 ## Built-in pack
 
 The page can load a built-in pack from `assets/packs/builtin-pack.zip`. That file is not part of the repository,
-because shader packs come with their own licenses. Put a pack there before building if you want one.
+because shader packs come with their own licenses. Put a pack there and build with `--with-pack` if you want one.
 
 ## Third-party code
 

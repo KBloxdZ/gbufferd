@@ -69,10 +69,10 @@
     <div id="status">starting…</div>
     <img id="shot" alt="" />
 
-    <!-- gbufferd-webgpu.html and gbufferd-embed.js sit one folder up in the repository -->
-    <script src="../gbufferd-embed.js"></script>
+    <!-- gbufferd-webgpu.html and gbufferd-embed.js are in dist/ of the repository -->
+    <script src="../dist/gbufferd-embed.js"></script>
     <script>
-      const viewer = GBufferd.embed('#viewer', { src: '../gbufferd-webgpu.html', ui: false, time: 6000 });
+      const viewer = GBufferd.embed('#viewer', { src: '../dist/gbufferd-webgpu.html', ui: false, time: 6000 });
       const $ = id => document.getElementById(id);
       let ui = false;
 

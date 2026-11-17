@@ -5,8 +5,8 @@ based API to drive it: load packs, set time and weather, move the camera, take s
 
 ## Quick start
 
-Put `gbufferd-webgpu.html` and `gbufferd-embed.js` next to your page (both are in the repository root, or in
-`dist/` after `node build.mjs`).
+Put `gbufferd-webgpu.html` and `gbufferd-embed.js` next to your page (both are in `dist/` in the repository, or
+build them with `node build.mjs`).
 
 ```html
 <div id="viewer" style="width: 960px; height: 540px"></div>

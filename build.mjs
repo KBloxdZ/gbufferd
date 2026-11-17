@@ -5,9 +5,13 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
-// --without-pack: for the file that goes on github, the built-in pack has its own license
-const withoutPack = args.includes('--without-pack');
-const output = path.resolve(root, args.find(a => !a.startsWith('--')) || 'dist/gbufferd-webgpu.html');
+// dist/ goes on github so it never gets the built-in pack (own license). --with-pack builds into build/ for yourself
+const withPack = args.includes('--with-pack');
+const withoutPack = !withPack;
+const output = path.resolve(
+  root,
+  args.find(a => !a.startsWith('--')) || (withPack ? 'build/gbufferd-webgpu.html' : 'dist/gbufferd-webgpu.html'),
+);
 const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml' };
 const missing = [];
 
