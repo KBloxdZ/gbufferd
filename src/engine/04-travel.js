@@ -98,16 +98,17 @@ function travelTo(dimension) {
         const failures = shaderFailures.slice(),
           empty = new JSZip();
         empty.file('shaders/shaders.properties', '');
-        return loadTestPack(empty, last.label + ' · Pipeline fehlgeschlagen, Vanilla').then(() => {
+        return loadTestPack(empty, last.label + ' (pipeline failed, vanilla)').then(() => {
           shaderFailures = failures;
           setStatus(
             last.label +
-              ': Pipeline für ' +
+              ': the ' +
               dimension +
-              ' fehlgeschlagen (' +
-              (failures[0]?.message || 'Fehler') +
-              ') · Vanilla · F9 zeigt die Details',
+              ' pipeline failed (' +
+              (failures[0]?.message || 'error') +
+              '), vanilla instead, F9 shows the details',
             'bad',
+            { type: 'error', pack: last.label, dimension },
           );
         });
       })

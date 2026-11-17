@@ -57,13 +57,13 @@ const photo = async () => {
   }
 };
 const actions = {
-  open: () => zipInput.click(),
+  open: () => gbufferd.openPack(),
   builtin: () => {
-    if (!retry.disabled) retry.click();
+    if (!gbufferd.busy) gbufferd.loadBuiltin().catch(() => {});
   },
   settings: () => {
     showPane(null, false);
-    settingsToggle.click();
+    gbufferd.toggleSettings();
   },
   pipeline: () => toggleDrawer(),
   time: () => toggleTime(),
@@ -167,8 +167,8 @@ document.addEventListener('keydown', event => {
   } else if (key === 'p' && !document.documentElement.classList.contains('cx-film')) {
     photo();
     event.preventDefault();
-  } else if (key === 'o' && !retry.disabled) {
-    zipInput.click();
+  } else if (key === 'o' && !gbufferd.busy) {
+    gbufferd.openPack();
     event.preventDefault();
   } else if (event.key === '?') {
     toggleSheet();

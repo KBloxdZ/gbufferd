@@ -82,7 +82,7 @@ async function loadPackZipData(data, label, requestedSettings) {
   if (!window.JSZip)
     throw new Error('JSZip konnte nicht geladen werden. Bitte die Seite mit Internetzugriff neu laden.');
   GB.hooks.setCompilePhase('unpack', 'Entpacke ZIP');
-  setStatus('Shader-ZIP wird geöffnet …');
+  setStatus('Opening the shader zip …', '', { type: 'loading', step: 'open' });
   let zip = await GB.hooks.prepareShaderZip(
       await applyDimensionFolders(
         await applyNetherFolder(irisShaderpackZip(data instanceof JSZip ? data : await JSZip.loadAsync(data))),
@@ -262,7 +262,7 @@ async function loadPackZipData(data, label, requestedSettings) {
         werte: nextSettings.values || {},
       };
       showShaderFailures();
-      programSummary.textContent = 'Shader-Pack nicht übernommen';
+      setProgramSummary('Shader pack not applied');
       throw new Error('Failed to load the shaderpack "' + label + '"! · F9 zeigt die Details');
     }
   }
@@ -356,7 +356,7 @@ async function loadPackZipData(data, label, requestedSettings) {
         const name = names[nextIndex++],
           files = programFiles[name];
         let createdProgram = null;
-        states.set(name, 'kompiliert …');
+        states.set(name, 'compiling');
         showProgramStates(states);
         try {
           if (!files.vsh || !files.fsh) throw new Error('Vertex- oder Fragmentshader fehlt');
@@ -393,14 +393,14 @@ async function loadPackZipData(data, label, requestedSettings) {
           bindSamplers(createdProgram);
           (isSceneStage(name) ? nextPrograms : nextPipelinePrograms).set(name, createdProgram);
           createdProgram = null;
-          states.set(name, 'bereit');
+          states.set(name, 'ready');
         } catch (error) {
           if (createdProgram) gl.deleteProgram(createdProgram);
           if (!isSceneStage(name) && /Missing entry point/.test(error.message)) {
             console.warn('Programm ohne main() übersprungen: ' + name);
-            states.set(name, 'leer');
+            states.set(name, 'empty');
           } else {
-            states.set(name, 'Fehler');
+            states.set(name, 'failed');
             failures.push({ name, message: error.message, files: programFiles[name] });
           }
         } finally {
@@ -483,7 +483,7 @@ async function loadPackZipData(data, label, requestedSettings) {
       }
       await Promise.all(
         [...byName].map(async ([name, path]) => {
-          states.set(name, 'kompiliert …');
+          states.set(name, 'compiling');
           showProgramStates(states);
           try {
             const source = packComputeSource(path, nextSettings, atomicImages);
@@ -497,13 +497,13 @@ async function loadPackZipData(data, label, requestedSettings) {
             });
             programNames.set(program, name);
             nextComputePrograms.set(name, program);
-            states.set(name, 'bereit');
+            states.set(name, 'ready');
           } catch (error) {
             if (/Image ohne Format/.test(error.message) || name.startsWith('clrwl_')) {
               console.warn('Compute-Programm übersprungen: ' + name + ' · ' + error.message);
-              states.set(name, 'übersprungen');
+              states.set(name, 'skipped');
             } else {
-              states.set(name, 'Fehler');
+              states.set(name, 'failed');
               failures.push(name + ': ' + error.message);
             }
           }
@@ -525,7 +525,7 @@ async function loadPackZipData(data, label, requestedSettings) {
     for (const program of [...nextPrograms.values(), ...nextPipelinePrograms.values(), ...nextComputePrograms.values()])
       gl.deleteProgram(program);
     gl.configurePackResources(previousResources, width, height);
-    programSummary.textContent = 'Shader-Pack nicht übernommen';
+    setProgramSummary('Shader pack not applied');
     if (!GB.state.active && !vanillaFallbackLoading) {
       const failures = shaderFailures.slice(),
         failureSettings = shaderFailureSettings;
@@ -552,7 +552,7 @@ async function loadPackZipData(data, label, requestedSettings) {
   }
   shaderFailures = [];
   reportTestState({ failures: [] });
-  setStatus('Pack-Texturen werden gelesen …');
+  setStatus('Reading pack textures …', '', { type: 'loading', step: 'pack-textures' });
   const nextTextures = await readPackTextures(zip, packProperties);
   disposePackTextures(activePackTextures);
   activePackTextures = nextTextures;
@@ -592,7 +592,7 @@ async function loadPackZipData(data, label, requestedSettings) {
   shadowStorageTargets = new Set(
     shaderSources.flatMap(source => [...source.matchAll(/\bshadowcolorimg(\d+)\b/g)].map(match => Number(match[1]))),
   );
-  setStatus('Eigene Texturen werden gelesen …');
+  setStatus('Reading custom textures …', '', { type: 'loading', step: 'custom-textures' });
   applyCustomTextures(await readCustomTextures(zip, packRequirements.properties || nextSettings.properties));
   resetStageWrittenTargets();
   for (const program of [...nextPrograms.values(), ...nextPipelinePrograms.values()]) {
@@ -623,11 +623,22 @@ async function loadPackZipData(data, label, requestedSettings) {
   clearDepthSnapshots(sceneDepthTextures, width, height, depthCopyFramebuffer);
   clearDepthSnapshots(shadowDepthTextures, SHADOW_RESOLUTION, SHADOW_RESOLUTION, shadowDepthCopyFramebuffer);
   gbufferDebugView = 0;
-  document.querySelector('h1').textContent = label + ' · Bergwelt';
+  GB.packLabel = label;
+  announce('pack', label);
   document.title = label + ' · WebGPU · Bergwelt';
-  programSummary.textContent = `${names.length + nextComputePrograms.size}/${names.length + nextComputePrograms.size} Shader-Programme kompiliert${nextComputePrograms.size ? ' · ' + nextComputePrograms.size + ' Compute' : ''}`;
-  setStatus(
-    `${label} · WebGPU · ${nextSettings.profile || 'Benutzerdefiniert'} · Zeit ${WORLD_TIME} · ${names.length}/${names.length} Programme aktiv`,
-    'good',
+  setProgramSummary(
+    `${names.length + nextComputePrograms.size}/${names.length + nextComputePrograms.size} shader programs compiled${nextComputePrograms.size ? ', ' + nextComputePrograms.size + ' compute' : ''}`,
+    {
+      ready: names.length + nextComputePrograms.size,
+      total: names.length + nextComputePrograms.size,
+      compute: nextComputePrograms.size,
+    },
   );
+  setStatus(`${label} · ${nextSettings.profile || 'custom'} · ${names.length} programs active`, 'good', {
+    type: 'loaded',
+    pack: label,
+    profile: nextSettings.profile || 'custom',
+    programs: names.length,
+    compute: nextComputePrograms.size,
+  });
 }

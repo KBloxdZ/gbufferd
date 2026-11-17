@@ -256,7 +256,10 @@ class IrisWebGPU {
     });
     device.lost.then(info => {
       this.fault = new Error(info.message);
-      onStatus('WebGPU-Gerät verloren: ' + (info.message || info.reason) + '. Bitte die Seite neu laden.', 'bad');
+      onStatus('WebGPU device lost: ' + (info.message || info.reason) + '. Reload the page.', 'bad', {
+        type: 'error',
+        fatal: true,
+      });
     });
     this.customImages = new Map();
     this.samplerImages = new Map();

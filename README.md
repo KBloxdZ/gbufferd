@@ -15,12 +15,27 @@ settings screen. Without a pack you get the vanilla look.
   single buffer writes off, and the triangle edges of a pass.
 - **Pixel debugger**: pause the frame, pick a pixel and step through the pass's GLSL line by line. Hover variables,
   textures (with the texel that was read) and SSBO contents.
-- An API for embedding the renderer in another page (`src/host-api.js`).
+- Easy embedding in any page (`gbufferd-embed.js`), plus host hooks for games that want GBufferd to render their own world (`src/host-api.js`).
 
 ## Download
 
 [`gbufferd-webgpu.html`](gbufferd-webgpu.html) is the finished page: one file, nothing to install. Open it in a
 browser with WebGPU (Chrome, Edge) and drop a shader pack zip onto it.
+
+## Put it on your own page
+
+```html
+<div id="viewer" style="width: 960px; height: 540px"></div>
+<script src="gbufferd-embed.js"></script>
+<script>
+  const viewer = GBufferd.embed('#viewer', { pack: 'packs/MyShaders.zip', ui: false });
+  viewer.setTime(12000);
+</script>
+```
+
+`gbufferd-embed.js` puts the viewer in an iframe and gives you a promise API: load packs, time, weather,
+dimension, camera, screenshots and status events. Everything is explained in [docs/embedding.md](docs/embedding.md),
+and [examples/embed.html](examples/embed.html) is a complete page to start from.
 
 ## Build
 
@@ -28,7 +43,7 @@ browser with WebGPU (Chrome, Edge) and drop a shader pack zip onto it.
 node build.mjs
 ```
 
-The result is one self-contained file, `dist/gbufferd-webgpu.html`. `node build.mjs gbufferd-webgpu.html --without-pack`
+The result is one self-contained file, `dist/gbufferd-webgpu.html`, with `gbufferd-embed.js` next to it. `node build.mjs gbufferd-webgpu.html --without-pack`
 makes the file in the repository root (always without the built-in pack). It needs Node 18 or newer and nothing else.
 Open the file in a browser with WebGPU (Chrome, Edge).
 
@@ -38,7 +53,8 @@ Open the file in a browser with WebGPU (Chrome, Edge).
 |---|---|
 | `src/index.html` | the page, with placeholders the build fills in |
 | `src/engine/` | the renderer, in order: world, dimensions, debugger, GLSL conversion, the WebGPU layer, render targets, uniforms, pack loading |
-| `src/viewer/` | the toolbar, environment panel, frame inspector and pixel debugger |
+| `src/viewer/` | the toolbar, environment panel, frame inspector and pixel debugger (`markup.html` is its HTML) |
+| `src/embed/` | `gbufferd-embed.js`, the script for other pages |
 | `src/glsl-preprocessor.js` | the GLSL preprocessor (`#include`, `#if`, macros) |
 | `assets/` | textures, images and the GUI font |
 | `vendor/` | the bundled shader compiler (glslang, naga) and its license notices |
@@ -52,6 +68,9 @@ The build joins the `.js` files of a folder in name order. Placeholders in the s
 | `@@datauri:path@@` | the file as a `data:` URI |
 | `@@base64:path@@` | the file as base64, empty when the file is missing |
 | `@@jsonstring:path@@` | the file's text as a JSON string |
+| `@@htmlstring:path@@` | like `jsonstring`, with the placeholders inside filled in first |
+
+In JavaScript, where a placeholder alone would not be valid code, `__include('text', 'path')` does the same.
 
 ## Built-in pack
 

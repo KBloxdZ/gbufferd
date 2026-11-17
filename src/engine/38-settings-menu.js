@@ -341,8 +341,6 @@ function renderSettingsMenu() {
   };
   const close = () => {
     panel.hidden = true;
-    document.getElementById('settingsToggle').setAttribute('aria-expanded', 'false');
-    document.getElementById('settingsToggle').focus();
   };
   const head = el('header', 'gui-head');
   const subtitle = gui('p', '', '§oConfigure', '7');

@@ -26,72 +26,6 @@ canvas {
 canvas:active {
   cursor: grabbing;
 }
-.panel {
-  position: fixed;
-  z-index: 2;
-  top: 18px;
-  left: 18px;
-  width: min(440px, calc(100vw - 36px));
-  max-height: calc(100vh - 72px);
-  overflow: auto;
-  padding: 15px 16px;
-  border: 1px solid #ffffff20;
-  border-radius: 14px;
-  background: #101317dc;
-  box-shadow: 0 14px 42px #0009;
-  backdrop-filter: blur(14px);
-}
-h1 {
-  margin: 0 0 4px;
-  font-size: 16px;
-  letter-spacing: 0.02em;
-}
-p {
-  margin: 0;
-  color: #aaa99f;
-  font-size: 12px;
-  line-height: 1.45;
-}
-.controls {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-button,
-.file {
-  border: 1px solid #ffffff20;
-  border-radius: 9px;
-  background: #262b30;
-  color: #f7f2e5;
-  padding: 8px 10px;
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-}
-button:hover,
-.file:hover {
-  background: #323940;
-}
-input {
-  display: none;
-}
-button:disabled,
-.file.disabled {
-  opacity: 0.55;
-  cursor: wait;
-}
-.import-note {
-  margin-top: 8px;
-}
-.status {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #ffffff14;
-}
 .dot {
   flex: 0 0 auto;
   width: 8px;
@@ -109,54 +43,9 @@ button:disabled,
   background: #e36d65;
   box-shadow: 0 0 12px #e36d6588;
 }
-#message {
-  overflow-wrap: anywhere;
-}
-details {
-  margin-top: 10px;
-  border-top: 1px solid #ffffff14;
-  padding-top: 9px;
-  color: #aaa99f;
-  font-size: 11px;
-}
-summary {
-  cursor: pointer;
-  color: #d8d2c4;
-}
-#programList {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 4px 12px;
-  margin-top: 8px;
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-}
-#programList .ok {
-  color: #77d395;
-}
-#programList .fail {
-  color: #e36d65;
-}
-.help {
-  position: fixed;
-  z-index: 2;
-  right: 18px;
-  bottom: 16px;
-  padding: 7px 10px;
-  border-radius: 8px;
-  background: #0c0f12b8;
-  color: #aaa99f;
-  font-size: 11px;
-  pointer-events: none;
-}
 .drop {
   outline: 3px solid #d6a453;
   outline-offset: -10px;
-}
-body.playing .panel,
-body.playing .help,
-body.hide-ui .panel,
-body.hide-ui .help {
-  display: none;
 }
 #crosshair {
   display: none;
@@ -189,11 +78,6 @@ body.hide-ui .help {
 }
 body.playing:not(.hide-ui) #crosshair {
   display: block;
-}
-@media (max-width: 640px) {
-  .help {
-    display: none;
-  }
 }
 
 #testBadge {
@@ -229,10 +113,6 @@ body.playing:not(.hide-ui) #crosshair {
 }
 body.test-mode #testBadge {
   display: flex;
-}
-body.test-mode:not(.test-panel) .panel,
-body.test-mode .help {
-  display: none;
 }
 body.hide-ui #testBadge,
 body.playing #testBadge {

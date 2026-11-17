@@ -172,7 +172,7 @@ function handlePlayerKey(event) {
       verticalVelocity = 0;
       jumpRequested = false;
       lastSpacePress = -Infinity;
-      setStatus(flying ? 'Flugmodus an' : 'Flugmodus aus', 'good');
+      setStatus(flying ? 'Flying on' : 'Flying off', 'good', { setting: 'flying', on: flying });
     } else {
       lastSpacePress = now;
       jumpRequested = true;

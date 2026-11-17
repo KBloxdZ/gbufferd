@@ -120,7 +120,7 @@ function inspectorRefresh() {
     document.dispatchEvent(new CustomEvent('gbufferd-inspector'));
     return;
   }
-  inspectorBox.hidden = false;
+  inspectorBox.hidden = !!GB.viewerUI;
   const step = inspectorList[inspectorIndex];
   const lines = ['§ FRAME INSPECTOR  ·  F8 close  ·  Up/down step  ·  Left/right channel  ·  Page up/down pass', ''];
   let lastPass = null;

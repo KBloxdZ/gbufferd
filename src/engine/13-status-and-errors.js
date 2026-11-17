@@ -226,27 +226,23 @@ function reportTestState(patch) {
       '*',
     );
 }
-function setStatus(text, kind = '') {
+function setStatus(text, kind = '', info = {}) {
   reportTestState({ status: text, kind });
   document.getElementById('testText').textContent =
     testState.label && !text.startsWith(testState.label) ? testState.label + ' · ' + text : text;
   document.getElementById('testDot').className = 'dot' + (kind ? ' ' + kind : '');
-  message.textContent = text;
+  GB.status = { type: kind === 'bad' ? 'error' : 'notice', ...info, message: text, kind };
+  announce('status', GB.status);
   const progress = document.querySelector('#shaderSettings .gui-warning');
   if (progress && shaderLoadBusy) progress.textContent = text;
-  dot.className = 'dot' + (kind ? ' ' + kind : '');
+}
+function setProgramSummary(text, counts = {}) {
+  Object.assign(GB.programs, { ready: null, total: null, compute: 0 }, counts, { summary: text });
+  announce('programs', GB.programs);
 }
 
 function showProgramStates(states = new Map()) {
   GB.hooks.noteCompilation(states, displayedProgramNames);
-  programList.replaceChildren();
-  for (const name of displayedProgramNames) {
-    const state = states.get(name) || 'wartet';
-    const label = document.createElement('span');
-    const value = document.createElement('span');
-    label.textContent = name;
-    value.textContent = state;
-    value.className = state === 'bereit' ? 'ok' : state === 'fehlt' || state === 'Fehler' ? 'fail' : '';
-    programList.append(label, value);
-  }
+  GB.programs.list = [...displayedProgramNames].map(name => ({ name, state: states.get(name) || 'waiting' }));
+  announce('programs', GB.programs);
 }

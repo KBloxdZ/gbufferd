@@ -49,7 +49,7 @@ const english = text =>
 
 let lastPack = '';
 const syncPack = () => {
-  const raw = (panelTitle?.textContent || '').replace(/\s*·\s*Bergwelt\s*$/, '').trim() || 'Shader Viewer';
+  const raw = gbufferd.packLabel || 'Shader Viewer';
   if (raw === lastPack) return;
   lastPack = raw;
   packEl.textContent = english(raw);
@@ -57,16 +57,16 @@ const syncPack = () => {
   profileTag.hidden = true;
 };
 const syncStatus = () => {
-  const text = message.textContent || '';
-  const kind = /\bbad\b/.test(dot.className) ? 'bad' : /\bgood\b/.test(dot.className) ? 'good' : '';
+  const status = gbufferd.status || {};
+  const text = status.message || '',
+    kind = status.kind || '';
   statusEl.dataset.kind = kind;
   msgEl.textContent = english(text);
   msgEl.title = msgEl.textContent;
-  const parts = text.split(' · ');
-  if (kind === 'good' && parts[1] === 'WebGPU' && parts.length >= 4) {
+  if (status.type === 'loaded') {
     profileTag.hidden = false;
     profileTag.innerHTML = 'Current Profile: <b></b>';
-    profileTag.lastChild.textContent = english(parts[2]);
+    profileTag.lastChild.textContent = english(status.profile);
   }
   const failures = window.shaderTest?.state?.failures || [];
   const errors = kind === 'bad' || failures.length > 0,
@@ -76,13 +76,13 @@ const syncStatus = () => {
     errorsItem.disabled = !errors;
     errorsItem.title = errors ? 'Show shader errors (F9)' : 'No shader errors';
   }
-  statusEl.dataset.idle = String(kind === 'good' && parts[1] === 'WebGPU');
+  statusEl.dataset.idle = String(status.type === 'loaded');
 };
 const syncPrograms = () => {
-  const text = programSummary?.textContent || '';
-  const m = text.match(/(\d+)\/(\d+)/);
-  const names = [...(programList?.children || [])].filter((_, i) => i % 2 === 0).map(node => node.textContent.trim());
-  const stages = names.filter(name =>
+  const text = gbufferd.programs?.summary || '';
+  const list = gbufferd.programs?.list || [];
+  const m = gbufferd.programs?.total != null;
+  const stages = list.filter(({ name }) =>
     /^(?:deferred|composite|prepare|begin|shadowcomp|setup)\d*(?:_[a-z])?$|^final$/.test(name),
   ).length;
   programsTag.hidden = !m;
@@ -92,29 +92,29 @@ const syncPrograms = () => {
   }
   $('.cx-sum', root).textContent = english(text);
   $('.cx-list', root).replaceChildren(
-    ...[...(programList?.children || [])].map(node => {
-      const clone = node.cloneNode(true);
-      clone.textContent = english(clone.textContent);
-      return clone;
+    ...list.flatMap(({ name, state }) => {
+      const label = document.createElement('span'),
+        value = document.createElement('span');
+      label.textContent = name;
+      value.textContent = english(state);
+      value.className = state === 'ready' ? 'ok' : state === 'failed' ? 'fail' : '';
+      return [label, value];
     }),
   );
 };
 const syncBusy = () => {
-  const busy = retry.disabled;
+  const busy = !!gbufferd.busy;
   document.documentElement.classList.toggle('cx-busy', busy);
   if (busy && document.pointerLockElement) document.exitPointerLock?.();
   btn('open').disabled = busy;
   if (btn('builtin')) btn('builtin').disabled = busy;
-  btn('settings').disabled = settingsToggle.disabled;
 };
-const watch = (node, fn, options) => {
-  if (node) new MutationObserver(fn).observe(node, options);
-  fn();
-};
-watch(panelTitle, syncPack, { childList: true, characterData: true, subtree: true });
-watch(message, syncStatus, { childList: true, characterData: true, subtree: true });
-watch(dot, syncStatus, { attributes: true, attributeFilter: ['class'] });
-watch(programSummary, syncPrograms, { childList: true, characterData: true, subtree: true });
-watch(programList, syncPrograms, { childList: true, subtree: true, characterData: true });
-watch(retry, syncBusy, { attributes: true, attributeFilter: ['disabled'] });
-watch(settingsToggle, syncBusy, { attributes: true, attributeFilter: ['disabled'] });
+for (const [name, sync] of [
+  ['pack', syncPack],
+  ['status', syncStatus],
+  ['programs', syncPrograms],
+  ['busy', syncBusy],
+]) {
+  document.addEventListener('gbufferd-' + name, sync);
+  sync();
+}

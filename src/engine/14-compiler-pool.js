@@ -137,7 +137,7 @@ class WebGPUShaderCompilerPool {
     if (this.valid(cached)) {
       this.rememberMemory(key, cached);
       if (this.batch) this.batch.cacheHits++;
-      this.report('Cache: ' + label);
+      this.report('cache', label);
       return { artifact: cached, key, cached: true };
     }
     let pending = this.inflight.get(key);
@@ -149,7 +149,7 @@ class WebGPUShaderCompilerPool {
       this.inflight.set(key, pending);
       const cleanup = () => this.inflight.delete(key);
       pending.then(cleanup, cleanup);
-    } else this.report('Gemeinsame Übersetzung: ' + label);
+    } else this.report('shared', label);
     return { artifact: await pending, key, cached: false };
   }
   createWorker() {
@@ -158,7 +158,7 @@ class WebGPUShaderCompilerPool {
       const job = slot.current;
       if (!job || job.id !== data.id) return;
       if (data.progress) {
-        this.report(data.progress);
+        this.report('compile', data.progress);
         return;
       }
       slot.current = null;
@@ -208,16 +208,16 @@ class WebGPUShaderCompilerPool {
         slot.current = null;
         job.reject(error);
       }
-      this.report(job.label + ' · Übersetzung');
+      this.report('translate', job.label);
     }
   }
   beginBatch(total) {
     this.batch = { total, done: 0, cacheHits: 0, start: performance.now() };
-    this.report('Shader werden verteilt');
+    this.report('start');
   }
   programDone() {
     if (this.batch) this.batch.done++;
-    this.report('Shader-Programme übernehmen');
+    this.report('apply');
   }
   endBatch() {
     const batch = this.batch;
@@ -225,14 +225,42 @@ class WebGPUShaderCompilerPool {
     this.scheduleRelease();
     return batch ? { ...batch, seconds: (performance.now() - batch.start) / 1000 } : null;
   }
-  report(detail) {
-    const active = this.workers.filter(slot => slot.current).length;
-    if (this.batch) {
-      const b = this.batch;
-      this.onStatus(
-        `${b.done}/${b.total} bereit · ${active}/${this.concurrency} Worker · ${b.cacheHits} aus Cache · ${detail} …`,
-      );
-    } else this.onStatus(detail + ' …');
+  report(step, program = '') {
+    const b = this.batch;
+    let name = String(program || ''),
+      detail = '';
+    if (step === 'compile') {
+      const parts = name.split(' · ');
+      name = parts[0];
+      detail = parts
+        .slice(1)
+        .join(' ')
+        .replace(/\s*→\s*/g, ' to ')
+        .toLowerCase();
+    }
+    const words = {
+      start: 'starting',
+      cache: 'from cache',
+      shared: 'shared translation',
+      translate: 'translating',
+      compile: detail || 'compiling',
+      apply: 'applying',
+    };
+    this.onStatus(
+      (b ? b.done + '/' + b.total + ' ready · ' : '') + (name ? name + ' · ' : '') + words[step] + ' …',
+      '',
+      {
+        type: 'compiling',
+        step,
+        program: name || null,
+        detail: detail || null,
+        ready: b ? b.done : null,
+        total: b ? b.total : null,
+        cached: b ? b.cacheHits : null,
+        workers: this.workers.filter(slot => slot.current).length,
+        maxWorkers: this.concurrency,
+      },
+    );
   }
   scheduleRelease() {
     if (!this.queue.length && !this.workers.some(slot => slot.current)) {

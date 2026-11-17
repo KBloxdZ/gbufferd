@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>GBufferd embed example</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #15171a;
+        color: #e8e6df;
+        font:
+          14px/1.5 system-ui,
+          sans-serif;
+      }
+      #viewer {
+        width: min(960px, 100%);
+        aspect-ratio: 16 / 9;
+        background: #000;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0;
+      }
+      button,
+      select,
+      input {
+        font: inherit;
+      }
+      #status {
+        color: #a9a69c;
+      }
+      #shot {
+        display: block;
+        max-width: 320px;
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>GBufferd embed example</h1>
+
+    <div id="viewer"></div>
+
+    <div class="controls">
+      <input id="pack" type="file" accept=".zip" />
+      <select id="time">
+        <option value="0">Sunrise</option>
+        <option value="6000" selected>Noon</option>
+        <option value="12000">Sunset</option>
+        <option value="18000">Midnight</option>
+      </select>
+      <select id="weather">
+        <option>clear</option>
+        <option>rain</option>
+        <option>thunder</option>
+      </select>
+      <select id="dimension">
+        <option>overworld</option>
+        <option>nether</option>
+        <option>end</option>
+      </select>
+      <button id="ui">Toggle UI</button>
+      <button id="screenshot">Screenshot</button>
+    </div>
+    <div id="status">starting…</div>
+    <img id="shot" alt="" />
+
+    <!-- gbufferd-webgpu.html and gbufferd-embed.js sit one folder up in the repository -->
+    <script src="../gbufferd-embed.js"></script>
+    <script>
+      const viewer = GBufferd.embed('#viewer', { src: '../gbufferd-webgpu.html', ui: false, time: 6000 });
+      const $ = id => document.getElementById(id);
+      let ui = false;
+
+      viewer.on('status', status => ($('status').textContent = status.message));
+      viewer.on('busy', busy => ($('pack').disabled = busy));
+
+      $('pack').onchange = () => $('pack').files[0] && viewer.loadPack($('pack').files[0]);
+      $('time').onchange = () => viewer.setTime(Number($('time').value));
+      $('weather').onchange = () => viewer.setWeather($('weather').value);
+      $('dimension').onchange = () => viewer.travel($('dimension').value);
+      $('ui').onclick = () => viewer.showUI((ui = !ui));
+      $('screenshot').onclick = async () => {
+        const png = await viewer.screenshot();
+        $('shot').src = URL.createObjectURL(png);
+      };
+    </script>
+  </body>
+</html>

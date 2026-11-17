@@ -2,7 +2,7 @@
 async function autoLoad() {
   if (shaderLoadBusy) return;
   if (!EMBEDDED_SHADER_ZIP_BASE64) {
-    setStatus('Kein Shader-Pack gewählt', 'good');
+    setStatus('No shader pack loaded', 'good', { type: 'idle' });
     return;
   }
   setShaderBusy(true);
@@ -46,7 +46,7 @@ async function loadTestPack(source, label) {
   } finally {
     setShaderBusy(false);
     zipInput.value = '';
-    reportTestState({ busy: false, ms: Math.round(performance.now() - started), programs: programSummary.textContent });
+    reportTestState({ busy: false, ms: Math.round(performance.now() - started), programs: GB.programs.summary });
   }
   return { ...testState };
 }
@@ -61,7 +61,7 @@ async function startConfiguredShader() {
   }
   if (choice === undefined || choice === 'builtin') return autoLoad();
   if (choice === null || choice === false || choice === 'none') {
-    setStatus('Kein Shader-Pack gewählt', 'good');
+    setStatus('No shader pack loaded', 'good', { type: 'idle' });
     return;
   }
   const wrapped = typeof choice === 'object' && 'source' in choice;
@@ -89,9 +89,10 @@ function startupLoad() {
     }
   }
   const pack = testParams.get('pack');
-  if (pack === null) startConfiguredShader();
+  if (pack === null && testParams.has('embed')) setStatus('No shader pack loaded', 'good', { type: 'idle' });
+  else if (pack === null) startConfiguredShader();
   else if (pack) loadTestPack(pack);
-  else setStatus('Testmodus · kein Pack geladen', 'good');
+  else setStatus('Test mode, no shader pack loaded', 'good', { type: 'idle' });
 }
 function captureFrame(type = 'image/png') {
   const copy = document.createElement('canvas');
@@ -205,7 +206,8 @@ window.shaderTest = {
   };
   requestAnimationFrame(count);
 }
-if (testParams.has('test') || testParams.has('pack')) document.body.classList.add('test-mode');
+if (testParams.has('test') || (testParams.has('pack') && !testParams.has('embed')))
+  document.body.classList.add('test-mode');
 if (testParams.has('noui')) document.body.classList.add('hide-ui');
 document.getElementById('testBadge').addEventListener('click', () => document.body.classList.toggle('test-panel'));
 addEventListener('message', event => {
@@ -258,7 +260,7 @@ addEventListener('message', event => {
 });
 
 async function init() {
-  setStatus('WebGPU und eingebetteter Shader-Compiler starten …');
+  setStatus('Starting WebGPU and the shader compiler …', '', { type: 'starting' });
   gl = await IrisWebGPU.create(canvas, WEBGPU_COMPILER_SOURCE, setStatus);
   viewerSyncProfiling();
   maxColorAttachments = gl.getParameter(gl.MAX_COLOR_ATTACHMENTS);
@@ -285,29 +287,25 @@ async function init() {
   createShadowFramebuffer();
   resize();
   showProgramStates();
-  setStatus('WebGPU · Chunk-Welt bereit · Shader-Pack wird geladen', 'good');
+  setStatus('WebGPU ready, world built', 'good', { type: 'starting', step: 'world-ready' });
   requestAnimationFrame(render);
   startupLoad();
 }
 
-document.body.append(document.getElementById('shaderSettings'));
-document.getElementById('shaderSettings').setAttribute('role', 'dialog');
-document.getElementById('shaderSettings').setAttribute('aria-modal', 'true');
-document.getElementById('settingsToggle').addEventListener('click', () => {
-  const menu = document.getElementById('shaderSettings');
-  menu.hidden = !menu.hidden;
-  document.getElementById('settingsToggle').setAttribute('aria-expanded', String(!menu.hidden));
-  if (!menu.hidden) renderSettingsMenu();
-});
-document.getElementById('shaderSettings').addEventListener('keydown', event => event.stopPropagation());
+const settingsMenu = document.getElementById('shaderSettings');
+settingsMenu.setAttribute('role', 'dialog');
+settingsMenu.setAttribute('aria-modal', 'true');
+settingsMenu.addEventListener('keydown', event => event.stopPropagation());
+GB.toggleSettings = (open = settingsMenu.hidden) => {
+  settingsMenu.hidden = !open;
+  if (open) renderSettingsMenu();
+};
+GB.openPack = () => {
+  if (!zipInput.disabled) zipInput.click();
+};
 zipInput.addEventListener('change', () => {
   const file = zipInput.files[0];
   if (file) loadTestPack(file).catch(() => {});
-});
-retry.addEventListener('click', autoLoad);
-document.getElementById('timeDay').addEventListener('click', event => {
-  setWorldTime(1000);
-  event.target.blur();
 });
 addEventListener('dragover', event => {
   event.preventDefault();

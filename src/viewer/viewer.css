@@ -13,10 +13,6 @@ html.cx {
   --top: calc(env(safe-area-inset-top, 0px) + 10px);
   --dock-bottom: env(safe-area-inset-bottom, 0px);
 }
-html.cx .panel,
-html.cx .help {
-  display: none !important;
-}
 #cx {
   position: fixed;
   inset: 0;
@@ -1029,9 +1025,6 @@ html.cx #shaderFailures,
 html.cx #frameInspector,
 html.cx #gpuProfile {
   z-index: 30;
-}
-html.cx #frameInspector {
-  display: none !important;
 }
 html.cx-insp #cx .cx-dock,
 html.cx-insp #cx .cx-pop,

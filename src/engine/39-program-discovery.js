@@ -8,10 +8,9 @@ const isPipelineStage = name =>
 function setShaderBusy(busy) {
   shaderLoadBusy = busy;
   if (busy && gl?.irisAsyncPipelines) gl.irisAsyncPipelines.presented = false;
-  retry.disabled = busy;
   zipInput.disabled = busy;
-  document.querySelector('.file').classList.toggle('disabled', busy);
-  document.querySelector('.controls').setAttribute('aria-busy', String(busy));
+  GB.busy = busy;
+  announce('busy', busy);
 }
 function packWantsTessellation(properties) {
   return ['iris.features.required', 'iris.features.optional'].some(key =>

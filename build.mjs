@@ -17,7 +17,7 @@ function expand(text) {
     /__include\(\s*['"](\w+)['"]\s*,\s*['"]([^'"]+)['"]\s*\)/g,
     (_, kind, p) => '@@' + kind + ':' + p + '@@',
   );
-  return text.replace(/@@(text|concat|datauri|base64|jsonstring):([^@\s]+)@@/g, (_, kind, p) => {
+  return text.replace(/@@(text|concat|datauri|base64|jsonstring|htmlstring):([^@\s]+)@@/g, (_, kind, p) => {
     if (kind === 'text') return expand(fs.readFileSync(file(p), 'utf8'));
     if (kind === 'concat')
       return fs
@@ -27,6 +27,7 @@ function expand(text) {
         .map(n => expand(fs.readFileSync(file(path.join(p, n)), 'utf8')))
         .join('');
     if (kind === 'jsonstring') return JSON.stringify(fs.readFileSync(file(p), 'utf8'));
+    if (kind === 'htmlstring') return JSON.stringify(expand(fs.readFileSync(file(p), 'utf8')));
     if (kind === 'datauri')
       return (
         'data:' +
@@ -47,3 +48,7 @@ fs.mkdirSync(path.dirname(output), { recursive: true });
 fs.writeFileSync(output, page);
 console.log(path.relative(root, output) + ': ' + (page.length / 1048576).toFixed(2) + ' MB');
 for (const p of missing) console.log('  not found, left empty: ' + p);
+// the little script for other pages always sits right next to the html
+const embed = path.join(path.dirname(output), 'gbufferd-embed.js');
+fs.copyFileSync(file('src/embed/gbufferd-embed.js'), embed);
+console.log(path.relative(root, embed));

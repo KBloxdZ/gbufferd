@@ -185,7 +185,7 @@ document.addEventListener('keydown', event => {
   event.preventDefault();
   debugView = (debugView + 1) % DEBUG_VIEWS.length;
   temporalHistoryValid = false;
-  setStatus('Debug-Ansicht: ' + DEBUG_VIEWS[debugView][0] + ' · V/F7', 'good');
+  setStatus('Debug view: ' + DEBUG_VIEWS[debugView][0] + ' (V/F7)', 'good', { setting: 'debugView', value: debugView });
 });
 function physicsColumn(x, z) {
   const key = x + ',' + z;
@@ -414,7 +414,10 @@ document.addEventListener('keydown', event => {
   engineBlockLight = !engineBlockLight;
   for (const key of worldChunks.keys()) pendingChunkRebuilds.add(key);
   temporalHistoryValid = false;
-  setStatus('Vanilla-Blocklicht (Lightmap) ' + (engineBlockLight ? 'an' : 'aus') + ' · F6', 'good');
+  setStatus('Vanilla block light ' + (engineBlockLight ? 'on' : 'off') + ' (F6)', 'good', {
+    setting: 'blockLight',
+    on: engineBlockLight,
+  });
 });
 function dropMeshJob(key) {
   if (meshJob && meshJob.key === key) meshJob = null;

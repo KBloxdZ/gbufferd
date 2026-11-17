@@ -507,7 +507,7 @@ function renderScene(t) {
   applyPreFlips('prepare');
   for (const stage of activePreOrder.filter(name => name.startsWith('prepare'))) {
     if (!runIrisStage(stage, eye, now)) {
-      setStatus('WebGPU-Fehler in der Shader-Passkette', 'bad');
+      setStatus('WebGPU error in the shader pass chain', 'bad');
       break;
     }
     if (inspectorPresented) break;
@@ -641,10 +641,10 @@ function renderScene(t) {
   }
   if (!compositePreDone) applyPreFlips('composite');
   if (inspectorPresented) {
-  } else if (!pipelineDrawOkay) setStatus('WebGPU-Fehler in der Shader-Passkette', 'bad');
+  } else if (!pipelineDrawOkay) setStatus('WebGPU error in the shader pass chain', 'bad');
   else if (pipelinePrograms.has('final')) {
     runComputeStage('final', eye, now);
-    if (!presentFinal(eye, now)) setStatus('WebGPU-Fehler im Final-Pass', 'bad');
+    if (!presentFinal(eye, now)) setStatus('WebGPU error in the final pass', 'bad');
   } else {
     runComputeStage('final', eye, now);
     presentFallback(colortexCurrent[0], 0);

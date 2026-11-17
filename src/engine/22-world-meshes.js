@@ -103,10 +103,10 @@ document.addEventListener('keydown', event => {
   event.preventDefault();
   shadowCullEnabled = !shadowCullEnabled;
   temporalHistoryValid = false;
-  setStatus(
-    'Schatten-Culling ' + (shadowCullEnabled ? 'an (wie Iris)' : 'aus (alles im shadowDistance)') + ' · K',
-    'good',
-  );
+  setStatus('Shadow culling ' + (shadowCullEnabled ? 'on, like Iris' : 'off') + ' (K)', 'good', {
+    setting: 'shadowCulling',
+    on: shadowCullEnabled,
+  });
 });
 let shadowCullFrame = -1,
   shadowCullDirection = [0, -1, 0],

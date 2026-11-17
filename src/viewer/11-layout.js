@@ -42,12 +42,12 @@ if (badge && document.body.classList.contains('test-mode')) {
     }
   });
 }
-let lastMessage = message.textContent;
-new MutationObserver(() => {
-  const text = message.textContent;
+let lastMessage = gbufferd.status?.message || '';
+document.addEventListener('gbufferd-status', () => {
+  const text = gbufferd.status?.message || '';
   if (document.pointerLockElement && text && text !== lastMessage && text.length < 60) toast(english(text));
   lastMessage = text;
-}).observe(message, { childList: true, characterData: true, subtree: true });
+});
 document.addEventListener('pointerlockchange', () => {
   if (document.pointerLockElement) toastEl.style.opacity = '';
 });

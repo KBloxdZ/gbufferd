@@ -184,12 +184,16 @@ const PACK_TEXTURES = {
 let ENABLE_TAA = true;
 const requestAnimationFrame = GB.config.requestAnimationFrame || (callback => window.requestAnimationFrame(callback));
 const canvas = document.getElementById('gl');
-const message = document.getElementById('message');
-const dot = document.getElementById('dot');
-const zipInput = document.getElementById('zipInput');
-const retry = document.getElementById('retry');
-const programSummary = document.getElementById('programSummary');
-const programList = document.getElementById('programList');
+const zipInput = document.createElement('input');
+zipInput.type = 'file';
+zipInput.accept = '.zip,application/zip';
+zipInput.hidden = true;
+document.body.append(zipInput);
+GB.status = { type: 'starting', message: '', kind: '' };
+GB.programs = { summary: '', list: [] };
+GB.packLabel = '';
+GB.busy = false;
+const announce = (name, detail) => document.dispatchEvent(new CustomEvent('gbufferd-' + name, { detail }));
 
 let gl, fallbackProgram, activeProgram, presentProgram, skyVao, skyIndexCount, screenVao, screenIndexCount;
 let framebuffer,
