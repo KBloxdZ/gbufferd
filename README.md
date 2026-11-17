@@ -1,6 +1,11 @@
 # GBufferd
 
+![GBufferd: shaders on the left, vanilla on the right](docs/images/thumbnail.jpg)
+
 Iris shader packs in the browser, rendered with WebGPU.
+
+**[Try it live](https://kbloxdz.github.io/gbufferd/)**: open the page, drop a shader pack zip on it. Needs a browser
+with WebGPU (Chrome or Edge on desktop).
 
 Drop a shader pack zip onto the page and it runs the way Iris runs it: gbuffers, shadow, deferred and composite
 passes, compute shaders, geometry and tessellation shaders, SSBOs, custom images and textures, the pack's own
@@ -17,9 +22,13 @@ settings screen. Without a pack you get the vanilla look.
   textures (with the texel that was read) and SSBO contents.
 - Easy embedding in any page (`gbufferd-embed.js`), plus host hooks for games that want GBufferd to render their own world (`src/host-api.js`).
 
+| | |
+|---|---|
+| ![Sunset with Complementary Unbound](docs/images/sunset.jpg) | ![The End dragon with Complementary Unbound](docs/images/end-dragon.jpg) |
+
 ## Download
 
-[`dist/gbufferd-webgpu.html`](dist/gbufferd-webgpu.html) is the finished page: one file, nothing to install. Open it in a
+[`dist/gbufferd-webgpu.html`](dist/gbufferd-webgpu.html) is the finished page (also attached to every [release](https://github.com/KBloxdZ/gbufferd/releases)): one file, nothing to install. Open it in a
 browser with WebGPU (Chrome, Edge) and drop a shader pack zip onto it.
 
 ## Put it on your own page

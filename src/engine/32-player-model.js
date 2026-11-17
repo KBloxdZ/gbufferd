@@ -450,6 +450,8 @@ function handWritesGbuffer() {
 }
 function renderHand(eye, now) {
   if (GB.state.active) return GB.hooks.drawShaderEntities('hand', eye, now);
+  // F1 hides the hand too, same as in the game
+  if (document.body.classList.contains('hide-ui')) return;
   const resolved = resolveIrisProgram(gbufferPrograms, 'gbuffers_hand'),
     program = resolved?.program;
   if (!program) return;
