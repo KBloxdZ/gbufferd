@@ -17,13 +17,19 @@ settings screen. Without a pack you get the vanilla look.
   textures (with the texel that was read) and SSBO contents.
 - An API for embedding the renderer in another page (`src/host-api.js`).
 
+## Download
+
+[`gbufferd-webgpu.html`](gbufferd-webgpu.html) is the finished page: one file, nothing to install. Open it in a
+browser with WebGPU (Chrome, Edge) and drop a shader pack zip onto it.
+
 ## Build
 
 ```bash
 node build.mjs
 ```
 
-The result is one self-contained file, `dist/gbufferd-webgpu.html`. It needs Node 18 or newer and nothing else.
+The result is one self-contained file, `dist/gbufferd-webgpu.html`. `node build.mjs gbufferd-webgpu.html --without-pack`
+makes the file in the repository root (always without the built-in pack). It needs Node 18 or newer and nothing else.
 Open the file in a browser with WebGPU (Chrome, Edge).
 
 ## Layout
@@ -57,3 +63,8 @@ because shader packs come with their own licenses. Put a pack there before build
 The shader compiler in `vendor/` contains glslang, naga and their dependencies; their licenses are in
 `vendor/third-party-notices.json` and are shipped inside the built page. Icons are from Font Awesome Free
 (CC BY 4.0). JSZip and CodeMirror are loaded from a CDN.
+
+## License
+
+MIT, see [LICENSE](LICENSE). You can read, use, change and share the code, as long as you keep the copyright
+notice with the KBloxdZ credit in every copy.

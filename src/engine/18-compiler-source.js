@@ -1,1 +1,1 @@
-const WEBGPU_COMPILER_SOURCE = @@jsonstring:vendor/webgpu-compiler.js@@;
+const WEBGPU_COMPILER_SOURCE = __include('jsonstring', 'vendor/webgpu-compiler.js');

@@ -1,9 +1,30 @@
-  const icons=@@text:assets/icons.json@@;
-  const svg=name=>icons[name]||'';
-  const keys=[['Click','Capture mouse'],['Esc','Release mouse'],['W A S D','Move'],['Ctrl','Sprint'],['Space','Jump'],['2× Space','Toggle flight'],['Space / Shift','Fly up / down'],['Left click','Break block'],['Right click','Place block'],['1–9 / Wheel','Hotbar'],['F1','Toggle HUD'],['F4','Pipeline info'],['F8','Frame inspector'],['F9','Shader errors'],['V / F7','Lighting debug'],['K','Cinema mode'],['P','Save screenshot'],['O','Upload shaderpack'],['?','Controls']];
+const icons = __include('text', 'assets/icons.json');
+const svg = name => icons[name] || '';
+const keys = [
+  ['Click', 'Capture mouse'],
+  ['Esc', 'Release mouse'],
+  ['W A S D', 'Move'],
+  ['Ctrl', 'Sprint'],
+  ['Space', 'Jump'],
+  ['2× Space', 'Toggle flight'],
+  ['Space / Shift', 'Fly up / down'],
+  ['Left click', 'Break block'],
+  ['Right click', 'Place block'],
+  ['1–9 / Wheel', 'Hotbar'],
+  ['F1', 'Toggle HUD'],
+  ['F4', 'Pipeline info'],
+  ['F8', 'Frame inspector'],
+  ['F9', 'Shader errors'],
+  ['V / F7', 'Lighting debug'],
+  ['K', 'Cinema mode'],
+  ['P', 'Save screenshot'],
+  ['O', 'Upload shaderpack'],
+  ['?', 'Controls'],
+];
 
-  const root=document.createElement('div');root.id='cx';
-  root.innerHTML=`
+const root = document.createElement('div');
+root.id = 'cx';
+root.innerHTML = `
     <div class="cx-rail">
       <header class="cx-title">
         <div class="cx-brand">GBufferd</div>
@@ -23,7 +44,7 @@
       <button type="button" class="cx-btn" data-act="time" title="Environment" aria-pressed="false" aria-controls="cx-world">${svg('time')}<span>Environment</span></button>
       <button type="button" class="cx-btn" data-act="pipeline" title="Pipeline info (F4)" aria-pressed="false" aria-controls="cx-passes">${svg('pipeline')}<span>Pipeline info</span></button>
       <details class="cx-more"><summary title="More" aria-label="More">${svg('more')}<span>More</span></summary><div class="cx-menu">
-        <button type="button" data-act="builtin">${svg('builtin')} Load built-in pack</button><hr>
+        ${window.GBufferd?.hasBuiltin === false ? '' : `<button type="button" data-act="builtin">${svg('builtin')} Load built-in pack</button><hr>`}
         <button type="button" data-act="photo">${svg('photo')} Save screenshot <kbd>P</kbd></button>
         <button type="button" data-act="film">${svg('film')} Cinema mode <kbd>K</kbd></button>
         <button type="button" data-act="record">${svg('film')} Record buffers (8 s)</button>
@@ -63,7 +84,7 @@
     </aside>
     <section id="cx-help" class="cx-sheet" hidden role="dialog" aria-label="Controls">
       <header><h2>Controls</h2><button class="cx-close" type="button" data-act="help" aria-label="Close controls">${svg('close')}</button></header>
-      <div class="cx-keys">${keys.map(([k,v])=>`<div><span>${v}</span><kbd>${k}</kbd></div>`).join('')}</div>
+      <div class="cx-keys">${keys.map(([k, v]) => `<div><span>${v}</span><kbd>${k}</kbd></div>`).join('')}</div>
     </section>
     <aside class="cx-insp" hidden aria-label="Frame inspector"><header>${svg('inspector')}<h2>Frame Inspector</h2><kbd>F8</kbd><button class="cx-close" type="button" data-insp-close aria-label="Close frame inspector">${svg('close')}</button></header><div class="cx-insp-list"></div><div class="cx-dbg-bar" hidden></div></aside>
     <div class="cx-insp-modes" hidden role="group" aria-label="Channel"></div>
@@ -72,8 +93,16 @@
     <div class="cx-dbg-pick" hidden></div><canvas class="cx-dbg-lens" width="165" height="200" hidden></canvas><section class="cx-dbg" hidden aria-label="Pixel debugger"></section><div class="cx-dbg-tip" hidden></div>
     <div class="cx-drop"><strong>Drop a shader ZIP here</strong></div>
     <div class="cx-toast" role="status"></div>`;
-  document.body.append(root);
-  const bars=document.createElement('div');bars.className='cx-bars';bars.innerHTML='<i></i><i></i>';document.body.append(bars);
-  const fpsEl=document.createElement('div');fpsEl.id='cx-fps';fpsEl.setAttribute('aria-hidden','true');document.body.append(fpsEl);
-  const filmHint=document.createElement('div');filmHint.id='cx-filmhint';filmHint.textContent='K or Esc to exit cinema mode';document.body.append(filmHint);
-
+document.body.append(root);
+const bars = document.createElement('div');
+bars.className = 'cx-bars';
+bars.innerHTML = '<i></i><i></i>';
+document.body.append(bars);
+const fpsEl = document.createElement('div');
+fpsEl.id = 'cx-fps';
+fpsEl.setAttribute('aria-hidden', 'true');
+document.body.append(fpsEl);
+const filmHint = document.createElement('div');
+filmHint.id = 'cx-filmhint';
+filmHint.textContent = 'K or Esc to exit cinema mode';
+document.body.append(filmHint);
