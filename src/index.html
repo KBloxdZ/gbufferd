@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bergwelt · WebGPU</title>
+  <style>@@text:src/page.css@@</style>
+</head>
+<body>
+  <canvas id="gl" aria-label="Bergwelt" tabindex="0"></canvas>
+  <div id="crosshair" aria-hidden="true"></div>
+  <div id="testBadge" title="Klick: Panel ein/aus"><span id="testDot" class="dot"></span><span id="testText"></span></div>
+  <section class="panel">
+    <h1>Complementary Unbound · Bergwelt</h1>
+    <p>Bergkämme, Wiesen und Wälder mit originalen Vanilla-Texturen. WebGPU rendert Complementary Unbound r5.7.1 mit seinen G-Buffer-, Shadow- und Postprocessing-Pässen.</p>
+    <div class="controls">
+      <button id="settingsToggle" type="button" aria-expanded="false">Shader Settings</button>
+      <button id="timeDay" type="button" title="Setzt die Weltzeit auf 1000 Ticks, wie /time set day">Zeit: Tag</button>
+      <button id="retry" type="button">Complementary Unbound laden (vorkonvertiert)</button>
+      <label class="file" for="zipInput">Eigener Iris-Shader<input id="zipInput" type="file" accept=".zip,application/zip" aria-label="Eigener Iris-Shader"></label>
+    </div>
+    <section id="shaderSettings" hidden aria-label="Shader Settings"></section>
+    <p class="import-note">Eigenes Shader-ZIP auswählen – es wird automatisch nach WGSL für WebGPU übersetzt.</p>
+    <div class="status"><span id="dot" class="dot"></span><p id="message">WebGL2 wird initialisiert …</p></div>
+    <details><summary id="programSummary">31 Shader-Programme warten auf das ZIP</summary><div id="programList"></div></details>
+  </section>
+  <div class="help">Klick: Maus fangen · WASD: laufen · Space: springen · 2× Space: Flugmodus · im Flug Space/Shift: hoch/runter · Linksklick: abbauen · Rechtsklick: setzen · 1–9/Mausrad: Hotbar · F4: GPU-Zeiten · F8: Frame-Inspektor · F9: Shader-Fehler · V/F7: Licht-Debug · Strg: schneller · F1: Oberfläche · F3: Debug · Esc: Maus lösen</div>
+
+  <script>@@text:src/host-api.js@@</script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script>@@text:src/glsl-preprocessor.js@@</script>
+  <script>@@concat:src/engine@@</script>
+<script>
+(()=>{
+@@concat:src/viewer@@})();
+
+</script>
+<script type="application/json" id="webgpu-third-party-notices">@@text:vendor/third-party-notices.json@@</script>
+</body>
+</html>

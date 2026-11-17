@@ -1,0 +1,4 @@
+dist/
+node_modules/
+# third-party shader pack, licensed for personal use only: keep it local
+assets/packs/
