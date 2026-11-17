@@ -1,0 +1,42 @@
+name: Live demo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build
+        run: node build.mjs
+      - name: Put the site together
+        run: |
+          mkdir -p site/examples
+          cp dist/gbufferd-webgpu.html site/index.html
+          cp dist/gbufferd-webgpu.html dist/gbufferd-embed.js site/
+          sed -e 's#\.\./dist/##g' examples/embed.html > site/examples/embed.html
+          sed -i -e 's#src="gbufferd-embed.js"#src="../gbufferd-embed.js"#' -e "s#src: 'gbufferd-webgpu.html'#src: '../gbufferd-webgpu.html'#" site/examples/embed.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
