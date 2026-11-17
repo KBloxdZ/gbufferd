@@ -625,7 +625,7 @@ async function loadPackZipData(data, label, requestedSettings) {
   gbufferDebugView = 0;
   GB.packLabel = label;
   announce('pack', label);
-  document.title = label + ' · WebGPU · Bergwelt';
+  document.title = label + ' - GBufferd';
   setProgramSummary(
     `${names.length + nextComputePrograms.size}/${names.length + nextComputePrograms.size} shader programs compiled${nextComputePrograms.size ? ', ' + nextComputePrograms.size + ' compute' : ''}`,
     {

@@ -32,6 +32,7 @@ jobs:
           mkdir -p site/examples
           cp dist/gbufferd-webgpu.html site/index.html
           cp dist/gbufferd-webgpu.html dist/gbufferd-embed.js site/
+          cp docs/images/social.png site/
           sed -e 's#\.\./dist/##g' examples/embed.html > site/examples/embed.html
           sed -i -e 's#src="gbufferd-embed.js"#src="../gbufferd-embed.js"#' -e "s#src: 'gbufferd-webgpu.html'#src: '../gbufferd-webgpu.html'#" site/examples/embed.html
       - uses: actions/configure-pages@v5
