@@ -35,6 +35,7 @@ A complete page with buttons for every call is in [`examples/embed.html`](../exa
 |---|---|---|
 | `src` | `'gbufferd-webgpu.html'` | where the GBufferd page is, relative to your page or absolute |
 | `pack` | none | a pack to load right away: URL, `File`, `Blob` or `ArrayBuffer`. `'builtin'` loads the built-in pack, if the build has one |
+| `modrinth` | none | a shaderpack from Modrinth to load right away, by slug or project id, for example `'bsl-shaders'` |
 | `ui` | `true` | `false` hides the toolbar, the hotbar and the crosshair |
 | `dimension` | `'overworld'` | `'overworld'`, `'nether'` or `'end'` |
 | `time` | | world time in ticks at the start (0 = sunrise, 6000 = noon, 12000 = sunset, 18000 = midnight) |
@@ -42,7 +43,7 @@ A complete page with buttons for every call is in [`examples/embed.html`](../exa
 | `yaw`, `pitch` | | start direction of the camera, in radians |
 | `title` | `'GBufferd'` | title of the iframe, for screen readers |
 
-Without `pack` the viewer starts with the vanilla look and waits.
+Without `pack` or `modrinth` the viewer starts with the vanilla look and waits.
 
 ## Methods
 
@@ -52,6 +53,8 @@ Every method returns a promise. Calls made before the viewer is ready wait for i
 |---|---|---|
 | `loadPack(source, label?)` | load result | `source` is a URL, `File`, `Blob`, `ArrayBuffer` or `Uint8Array`. URLs are fetched by your page, so packs from other servers work as long as they send CORS headers. The result has `ok`, `programs` and `failures` |
 | `loadBuiltin()` | load result | loads the built-in pack; fails when the build has none |
+| `loadModrinth(project)` | load result | loads the newest release of a Modrinth shaderpack (slug or project id) that Iris can run. The result also has `modrinth: {slug, title, version}` |
+| `searchModrinth(query, {offset, limit}?)` | `{total, hits}` | searches Modrinth shaderpacks; every hit has `id`, `slug`, `title`, `author`, `description`, `downloads`, `icon`. An empty query lists the most downloaded packs |
 | `setTime(ticks)` | ticks | world time, 0 to 23999 |
 | `setWeather(kind)` | kind | `'clear'`, `'rain'`, `'thunder'`; rain fades in like in the game |
 | `travel(dimension)` | dimension | `'overworld'`, `'nether'`, `'end'` |
@@ -100,7 +103,7 @@ fields depend on `type`:
 |---|---|---|
 | `starting` | `step?` | WebGPU and the shader compiler start; `step: 'world-ready'` when the world is built |
 | `idle` | | running, no pack loaded |
-| `loading` | `step` | `'open'`, `'pack-textures'`, `'custom-textures'` |
+| `loading` | `step` | `'modrinth'` (looking the pack up), `'download'`, `'open'`, `'pack-textures'`, `'custom-textures'` |
 | `compiling` | `step`, `program`, `detail`, `ready`, `total`, `cached`, `workers`, `maxWorkers` | one update per shader step. `step` is `'start'`, `'cache'`, `'shared'`, `'translate'`, `'compile'` or `'apply'`; `ready`/`total` count the pack's programs; `cached` how many came from the cache |
 | `loaded` | `pack`, `profile`, `programs`, `compute` | the pack runs |
 | `error` | `pack?`, `dimension?`, `fatal?` | something failed; `fatal: true` means the GPU is gone and the page has to reload |
@@ -119,6 +122,12 @@ viewer.on('status', status => {
 Program states in `programs.list` are `'waiting'`, `'compiling'`, `'ready'`, `'empty'`, `'skipped'` or `'failed'`.
 
 ## Examples
+
+A pack from Modrinth, no download on your side:
+
+```js
+const viewer = GBufferd.embed('#viewer', { modrinth: 'complementary-reimagined', ui: false });
+```
 
 Load a pack the user picks:
 

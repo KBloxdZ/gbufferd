@@ -48,7 +48,9 @@
       this.ready = new Promise(resolve => (this.resolveReady = resolve));
 
       const pack = this.options.pack;
-      if (pack === 'builtin') this.ready.then(() => this.loadBuiltin()).catch(error => this.emit('error', error));
+      if (this.options.modrinth)
+        this.ready.then(() => this.loadModrinth(this.options.modrinth)).catch(error => this.emit('error', error));
+      else if (pack === 'builtin') this.ready.then(() => this.loadBuiltin()).catch(error => this.emit('error', error));
       else if (pack) this.loadPack(pack).catch(error => this.emit('error', error));
     }
 
@@ -104,6 +106,13 @@
     }
     loadBuiltin() {
       return this.call('loadBuiltin');
+    }
+    // a shaderpack from modrinth by its slug or id, the newest release iris can load
+    loadModrinth(project) {
+      return this.call('loadModrinth', [project]);
+    }
+    searchModrinth(query = '', options = {}) {
+      return this.call('searchModrinth', [query, options]);
     }
     setTime(ticks) {
       return this.call('setTime', [ticks]);

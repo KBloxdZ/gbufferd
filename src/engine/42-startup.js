@@ -88,8 +88,10 @@ function startupLoad() {
       if (kind === 'thunder') window.wgpuWeather.thunder = 1;
     }
   }
-  const pack = testParams.get('pack');
-  if (pack === null && testParams.has('embed')) setStatus('No shader pack loaded', 'good', { type: 'idle' });
+  const pack = testParams.get('pack'),
+    modrinth = testParams.get('modrinth');
+  if (pack === null && modrinth) GB.modrinth.load(modrinth).catch(error => setStatus(error.message, 'bad'));
+  else if (pack === null && testParams.has('embed')) setStatus('No shader pack loaded', 'good', { type: 'idle' });
   else if (pack === null) startConfiguredShader();
   else if (pack) loadTestPack(pack);
   else setStatus('Test mode, no shader pack loaded', 'good', { type: 'idle' });

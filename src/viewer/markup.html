@@ -13,10 +13,41 @@
     <span><b data-hud="frame">–</b><small>Frame counter</small></span>
   </div>
   <div class="cx-worm" aria-hidden="true"><i></i></div>
-  <button type="button" class="cx-btn cx-upload" data-act="open" title="Upload shaderpack (O)">
-    {{icon:open}}<span>Upload shaderpack</span>
-  </button>
+  <div class="cx-rail-actions">
+    <button
+      type="button"
+      class="cx-btn cx-upload cx-browse-btn"
+      data-act="browse"
+      title="Browse shaderpacks on Modrinth (B)"
+      aria-pressed="false"
+      aria-controls="cx-browse"
+    >
+      {{icon:search}}<span>Browse shaderpacks</span>
+    </button>
+    <button type="button" class="cx-btn cx-upload" data-act="open" title="Upload shaderpack (O)">
+      {{icon:open}}<span>Upload shaderpack</span>
+    </button>
+  </div>
 </div>
+<section id="cx-browse" class="cx-browse cx-pop" hidden aria-label="Browse shaderpacks">
+  <header>
+    <h2>Shaderpacks from Modrinth</h2>
+    <button class="cx-close" type="button" data-act="browse" aria-label="Close shaderpack browser">{{icon:close}}</button>
+  </header>
+  <label class="cx-browse-search"
+    >{{icon:search}}<input
+      type="search"
+      placeholder="Search shaderpacks"
+      aria-label="Search shaderpacks"
+      spellcheck="false"
+      autocomplete="off"
+  /></label>
+  <div class="cx-browse-list" role="list" aria-live="polite"></div>
+  <footer class="cx-browse-foot">
+    <span>Packs load straight from Modrinth and keep their own licenses.</span
+    ><button type="button" class="cx-reset" data-browse-share hidden>Copy link to this pack</button>
+  </footer>
+</section>
 <nav class="cx-dock" aria-label="Viewer tools">
   <button type="button" class="cx-btn" data-act="settings" title="Shader settings">
     {{icon:settings}}<span>Shader settings</span>

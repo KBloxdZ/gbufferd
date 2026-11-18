@@ -4,8 +4,12 @@
 
 Iris shader packs in the browser, rendered with WebGPU.
 
-**[Try it live](https://kbloxdz.github.io/gbufferd/)**: open the page, drop a shader pack zip on it. Needs a browser
-with WebGPU (Chrome or Edge on desktop).
+**[Try it live](https://kbloxdz.github.io/gbufferd/)**: open the page, click **Browse shaderpacks** and pick one, or
+drop a shader pack zip on it. Needs a browser with WebGPU (Chrome or Edge on desktop).
+
+Every pack on Modrinth has its own link, for example
+[kbloxdz.github.io/gbufferd/?modrinth=bsl-shaders](https://kbloxdz.github.io/gbufferd/?modrinth=bsl-shaders) opens BSL
+right away. Pack authors can put that link on their page as a live preview.
 
 Drop a shader pack zip onto the page and it runs the way Iris runs it: gbuffers, shadow, deferred and composite
 passes, compute shaders, geometry and tessellation shaders, SSBOs, custom images and textures, the pack's own
@@ -15,6 +19,8 @@ settings screen. Without a pack you get the vanilla look.
 
 - The Iris pipeline on WebGPU: GLSL goes through glslang and naga to WGSL, with the pack's `shaders.properties`,
   block and entity IDs, render target formats, blending, flips and mipmaps.
+- Shaderpacks straight from Modrinth: search, click, it runs. Packs are fetched by your browser from Modrinth and
+  keep their own licenses, nothing is rehosted.
 - A small world to look at: overworld with a river, the Nether, the End with the dragon, weather and time of day.
 - **Frame inspector (F8)**: every pass and every buffer it writes, channel views, switching single passes or
   single buffer writes off, and the triangle edges of a pass.

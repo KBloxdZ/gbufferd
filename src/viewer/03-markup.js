@@ -19,6 +19,7 @@ const keys = [
   ['K', 'Cinema mode'],
   ['P', 'Save screenshot'],
   ['O', 'Upload shaderpack'],
+  ['B', 'Browse shaderpacks'],
   ['?', 'Controls'],
 ];
 
