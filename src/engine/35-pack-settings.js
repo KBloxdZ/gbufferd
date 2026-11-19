@@ -193,7 +193,7 @@ function lowerStageSource(s, stage, atomicImages) {
   s = renameReservedIdentifiers(s);
   s = lowerSwitchFallthrough(s);
   s = stage === 'fragment' ? lowerComponentOutputs(dropBuiltinRedeclarations(s)) : dropPerVertexBlocks(s);
-  if (stage === 'fragment') s = s.replace(/\bgl_HelperInvocation\b/g, 'false');
+  if (stage === 'fragment') s = readOnlyFragDepth(s.replace(/\bgl_HelperInvocation\b/g, 'false'));
   s = lowerAtomicImages(lowerImage1D(s), atomicImages);
   s = lowerSampler1D(lowerSubgroups(lowerGatherOffsets(lowerDynamicTexelOffsets(s)), stage));
   s = joinMultilineConsts(s);

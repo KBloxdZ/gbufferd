@@ -1291,6 +1291,15 @@ function dropBuiltinRedeclarations(source) {
   );
 }
 
+// a shader that only reads gl_FragDepth keeps the normal depth in gl. here any use turns into a depth output
+// that nobody writes, so the fragment lands at depth 0 in front of evrything (noble water did that)
+function readOnlyFragDepth(source) {
+  if (!/\bgl_FragDepth\b/.test(source)) return source;
+  const written = /\bgl_FragDepth\s*(?:[-+*/%&|^]|<<|>>)?=(?!=)|\bgl_FragDepth\s*(?:\+\+|--)|(?:\+\+|--)\s*gl_FragDepth\b/;
+  if (written.test(source.replace(/\/\/[^\n]*/g, ''))) return source;
+  return source.replace(/\bgl_FragDepth\b/g, 'gl_FragCoord.z');
+}
+
 function dropImageAtomics(source) {
   const images = new Map([...source.matchAll(/\b([ui]?)image[23]D\s+(\w+)\s*;/g)].map(m => [m[2], m[1]]));
   const calls = /\bimageAtomic\w+\s*\(/g;
