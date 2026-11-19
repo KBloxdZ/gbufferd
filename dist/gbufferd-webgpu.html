@@ -13637,6 +13637,9 @@ if (GB.config.rendererOptimizations) {
 }
 function wgpuRewriteWgsl(code) {
   code = wgpuZeroProducts(code);
+  // gl drivers (nvidia at least) give per pixel derivatives, plain dpdx may be one value per 2x2 quad.
+  // caustics from dFdx areas (noble) turn into staircases with the coarse ones
+  code = code.replace(/\b(dpdx|dpdy|fwidth)\s*\(/g, '$1Fine(');
   if (/\b(?:NaNf|inff)\b/.test(code)) code = wgpuNonFiniteLiterals(code);
   if (/\bfn wgpuSg_/.test(code)) code = wgpuRealSubgroupsWgsl(code);
   if (/\bWgpuSharedSpill\b/.test(code))
