@@ -209,7 +209,7 @@ function spillSharedMemory(source, plan) {
   return rename(head) + spill + rename(tail);
 }
 function packComputeSource(path, settings, atomicImages) {
-  let s = packStageSource(path, 'compute', settings);
+  let s = inlineImageParameters(packStageSource(path, 'compute', settings));
   s = glslBufferQualifiers(nameAnonymousStructs(foldBufferArrayLengths(lowerLongTernaryChains(s))));
   s = spillSharedMemory(s, activeSharedSpills.get(path));
   s = splitInterfaceDeclarations(s);

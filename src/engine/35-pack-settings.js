@@ -188,6 +188,7 @@ function packStageSource(file, stage, settings) {
   );
 }
 function lowerStageSource(s, stage, atomicImages) {
+  s = inlineImageParameters(s);
   s = glslBufferQualifiers(nameAnonymousStructs(foldBufferArrayLengths(lowerLongTernaryChains(s))));
   s = splitInterfaceDeclarations(s);
   s = renameReservedIdentifiers(s);

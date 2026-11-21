@@ -1300,6 +1300,77 @@ function readOnlyFragDepth(source) {
   return source.replace(/\bgl_FragDepth\b/g, 'gl_FragCoord.z');
 }
 
+// gl drivers inline a function that takes an image, naga cant take a writeonly image as parameter at all
+// (photon floodfill: update_lpv(writeonly image3D light_img, ...)). so evry call with a global image gets its own
+// copy of the function where the parameter is that global
+const IMAGE_PARAM =
+  /^\s*(?:layout\s*\([^)]*\)\s*)?(?:(?:readonly|writeonly|coherent|volatile|restrict|in|highp|mediump|lowp)\s+)*[iu]?image(?:[123]D|Cube|2DArray|CubeArray|Buffer|2DMS|2DMSArray)\s+(\w+)\s*$/;
+function matchingBrace(source, open) {
+  let depth = 0;
+  for (let i = open; i < source.length; i++) {
+    if (source[i] === '{') depth++;
+    else if (source[i] === '}' && !--depth) return i;
+  }
+  return -1;
+}
+function inlineImageParameters(source) {
+  if (!/\bimage(?:[123]D|Cube|2DArray|CubeArray|Buffer|2DMS)\b/.test(source)) return source;
+  const header = /\b(\w+)\s+(\w+)\s*\(([^(){};]*)\)\s*\{/g;
+  for (let guard = 0; guard < 32; guard++) {
+    let found = null,
+      match;
+    header.lastIndex = 0;
+    while ((match = header.exec(source))) {
+      const params = match[3].split(',');
+      const slots = params.flatMap((param, slot) => (IMAGE_PARAM.test(param) ? [slot] : []));
+      if (slots.length && !['if', 'for', 'while', 'switch'].includes(match[2])) {
+        found = { match, params, slots };
+        break;
+      }
+    }
+    if (!found) return source;
+    const { match: fn, params, slots } = found;
+    const name = fn[2],
+      open = fn.index + fn[0].length - 1,
+      close = matchingBrace(source, open);
+    if (close < 0) return source;
+    const body = source.slice(open, close + 1);
+    const imageNames = slots.map(slot => params[slot].match(IMAGE_PARAM)[1]);
+    const keptParams = params.filter((_, slot) => !slots.includes(slot)).join(',');
+    const copies = new Map();
+    const marker = '/*wgpuImageCopies*/';
+    let rest = source.slice(0, fn.index) + marker + source.slice(close + 1);
+    // prototypes of the function go too, the copies are defined where the original was
+    rest = rest.replace(new RegExp('\\b\\w+\\s+' + name + '\\s*\\([^(){};]*\\bimage\\w*\\s+\\w+[^(){};]*\\)\\s*;', 'g'), '');
+    const calls = new RegExp('\\b' + name + '\\s*\\(', 'g');
+    let call,
+      output = '',
+      at = 0;
+    while ((call = calls.exec(rest))) {
+      const parsed = callArguments(rest, calls.lastIndex);
+      if (!parsed) continue;
+      const [args, end] = parsed;
+      const globals = slots.map(slot => args[slot]);
+      if (!globals.every(arg => /^\w+$/.test(arg || ''))) return source;
+      const key = globals.join('_');
+      let copyName = copies.get(key)?.name;
+      if (!copyName) {
+        copyName = name + '_wgpuImg_' + key;
+        let copyBody = body;
+        imageNames.forEach((param, i) => (copyBody = copyBody.replace(new RegExp('\\b' + param + '\\b', 'g'), globals[i])));
+        copies.set(key, { name: copyName, text: fn[1] + ' ' + copyName + '(' + keptParams + ') ' + copyBody });
+      }
+      output += rest.slice(at, call.index) + copyName + '(' + args.filter((_, i) => !slots.includes(i)).join(', ') + ')';
+      at = end;
+      calls.lastIndex = end;
+    }
+    rest = output + rest.slice(at);
+    const definitions = [...copies.values()].map(copy => copy.text).join('\n');
+    source = rest.replace(marker, () => definitions + '\n');
+  }
+  return source;
+}
+
 function dropImageAtomics(source) {
   const images = new Map([...source.matchAll(/\b([ui]?)image[23]D\s+(\w+)\s*;/g)].map(m => [m[2], m[1]]));
   const calls = /\bimageAtomic\w+\s*\(/g;
